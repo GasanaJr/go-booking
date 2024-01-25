@@ -30,18 +30,31 @@ func main() {
 		fmt.Println("Enter number of tickets")
 		fmt.Scan(&userTicket)
 
+		if userTicket > remainingTickets {
+			fmt.Println("Invalid number of tickets")
+			continue
+		}
+
 		// Update tickets
 		remainingTickets = remainingTickets - userTicket
 		bookings = append(bookings, userName)
 		fmt.Printf("Hello %v, you have %v tickets \n", userName, userTicket)
 		fmt.Printf("%v tickets remaining for %v\n", remainingTickets, confrenceName)
 
+		//create username slice
 		userNames := []string{}
 		for _, booking := range bookings {
 			var names = strings.Fields(booking)
 			userNames = append(userNames, names[0])
 		}
 		fmt.Printf("All the usernames who booked are %v \n", userNames)
+
+		noTicketsRemaining := remainingTickets == 0
+		if noTicketsRemaining {
+			//end the program
+			fmt.Println("The confrence tickets are SOLD OUT")
+			break
+		}
 	}
 
 }
