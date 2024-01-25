@@ -12,6 +12,10 @@ func main() {
 		confrenceTickets, " tickets and ", remainingTickets,
 		" tickets remaining")
 
+	// alternative declaration
+	bookings := []string{}
+	//var bookings []string
+
 	var userName string
 	var userTicket int
 	fmt.Println("Enter user name")
@@ -21,8 +25,8 @@ func main() {
 
 	// Update tickets
 	remainingTickets = remainingTickets - userTicket
-
+	bookings = append(bookings, userName)
 	fmt.Printf("Hello %v, you have %v tickets \n", userName, userTicket)
 	fmt.Printf("%v tickets remaining for %v\n", remainingTickets, confrenceName)
-
+	fmt.Printf("All the bookings are %v \n", bookings)
 }
