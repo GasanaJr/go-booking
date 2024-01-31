@@ -1,88 +1,44 @@
 package main
 
 import (
-	"booking-app/helper"
 	"fmt"
-	"strings"
+	"log"
+	"net/http"
 )
 
+func formHandler(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		fmt.Fprintf(w, "ParseForm error: %v", err)
+		return
+	}
+	fmt.Fprintf(w, "Post request successfully completed")
+	name := r.FormValue("name")
+	address := r.FormValue("address")
+
+	fmt.Fprintf(w, "The name is %s ", name)
+	fmt.Fprintf(w, "The address is %s ", address)
+}
+
+func helloHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/hello" {
+		http.Error(w, "404 not found", http.StatusNotFound)
+		return
+	}
+	if r.Method != "GET" {
+		http.Error(w, "405 method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	fmt.Fprintf(w, "Hello World")
+}
+
 func main() {
-	var remainingTickets uint = 50
-	var confrenceName = "Go Confrence"
-	// alternative declaration
-	bookings := []string{}
-	//var bookings []string
-	greetUsers(confrenceName)
+	fileServer := http.FileServer(http.Dir("./static"))
+	http.Handle("/", fileServer)
+	http.HandleFunc("/form", formHandler)
+	http.HandleFunc("/hello", helloHandler)
 
-	for {
-		// Get user data
-		userName, lastName, userTicket, email := getUserInputs()
-		// User validation
-		isValidEmail, isValidName, isValidTicket := helper.ValidateUserInputs(userName, lastName, email, userTicket, remainingTickets)
-
-		if isValidEmail && isValidTicket && isValidName {
-			// Update tickets
-			remainingTickets = remainingTickets - userTicket
-			bookings = append(bookings, userName+" "+lastName)
-			fmt.Printf("Hello %v, you have %v tickets \n", userName, userTicket)
-			fmt.Printf("%v tickets remaining for %v\n", remainingTickets, confrenceName)
-
-			//call print first names
-			var firstNames = printFirstNames(bookings)
-			fmt.Printf("All the usernames who booked are %v \n", firstNames)
-
-			noTicketsRemaining := remainingTickets == 0
-			if noTicketsRemaining {
-				//end the program
-				fmt.Println("The confrence tickets are SOLD OUT")
-				break
-			}
-		} else {
-			if !isValidEmail {
-				fmt.Println("Please enter a valid email address")
-			}
-			if !isValidName {
-				fmt.Println("Please enter a valid name")
-			}
-			if !isValidTicket {
-				fmt.Println("Please enter a valid number of tickets")
-			}
-			continue
-		}
-
+	fmt.Printf("Server listening on port 8080 \n")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatal(err)
 	}
-
-}
-
-func greetUsers(confName string) {
-	const confrenceTickets = 50
-	fmt.Printf("Welcome to %v application\n", confName)
-	fmt.Println("We have a total of ",
-		confrenceTickets, " tickets")
-}
-
-func printFirstNames(bookings []string) []string {
-	userNames := []string{}
-	for _, booking := range bookings {
-		var names = strings.Fields(booking)
-		userNames = append(userNames, names[0])
-	}
-	return userNames
-}
-
-func getUserInputs() (string, string, uint, string) {
-	var userName string
-	var lastName string
-	var userTicket uint
-	var email string
-	fmt.Println("Enter user name")
-	fmt.Scan(&userName)
-	fmt.Println("Enter last name")
-	fmt.Scan(&lastName)
-	fmt.Println("Enter email")
-	fmt.Scan(&email)
-	fmt.Println("Enter number of tickets")
-	fmt.Scan(&userTicket)
-	return userName, lastName, userTicket, email
-
 }
